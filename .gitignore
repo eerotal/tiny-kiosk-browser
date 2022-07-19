@@ -1,0 +1,7 @@
+Makefile
+
+moc_*
+.qmake.stash
+
+*.o
+tiny-kiosk-browser
