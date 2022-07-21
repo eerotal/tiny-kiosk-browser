@@ -5,3 +5,6 @@ moc_*
 
 *.o
 tiny-kiosk-browser
+
+\#*
+.\#*
