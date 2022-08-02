@@ -34,7 +34,11 @@
  *
  *******************************************************************************/
 
+#include <QWebView>
 #include <QBoxLayout>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QAuthenticator>
 
 #include "Core/Inc/browser.hpp"
 
@@ -49,8 +53,20 @@ static const char* kIntroPageHtml =
 
 TinyKioskBrowser::TinyKioskBrowser(QWidget* parent) : QWidget(parent) {
     // Setup web view.
-    webView = new QWebEngineView();
-    webView->setUrl(QUrl(QStringLiteral("")));
+    webView = new QWebView(this);
+
+    accessManager = new QNetworkAccessManager();
+    webView->page()->setNetworkAccessManager(accessManager);
+
+    connect(
+        accessManager, SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)),
+        this, SLOT(provideAuthentication(QNetworkReply*, QAuthenticator*))
+    );
+
+    connect(
+        accessManager, SIGNAL(finished(QNetworkReply*)),
+        this, SLOT(finished(QNetworkReply*))
+    );
 
     // Setup layout.
     QVBoxLayout *layout = new QVBoxLayout();
@@ -66,9 +82,19 @@ TinyKioskBrowser::~TinyKioskBrowser() {
 }
 
 void TinyKioskBrowser::navigate(const QUrl& url) {
-    webView->setUrl(url);
+    webView->load(url);
 }
 
 void TinyKioskBrowser::showIntroPage(void) {
-    webView->setHtml(kIntroPageHtml);
+    //webView->setHtml(kIntroPageHtml);
+}
+
+void TinyKioskBrowser::provideAuthentication(QNetworkReply* reply, QAuthenticator *authenticator) {
+    qDebug() << "Send auth!!";
+    authenticator->setUser("infotv");
+    authenticator->setPassword("vtofni");
+}
+
+void TinyKioskBrowser::finished(QNetworkReply* reply) {
+    qDebug() << "Finished!!";
 }

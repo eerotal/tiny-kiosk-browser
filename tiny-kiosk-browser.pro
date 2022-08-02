@@ -43,6 +43,6 @@ INCLUDEPATH += .
 HEADERS += Core/Inc/browser.hpp
 SOURCES += Core/Src/browser.cpp Core/Src/main.cpp
 
-QT += widgets webengine webenginewidgets
+QT += widgets webkit webkitwidgets
 
 DEFINES += VERSION=\\\"$$VERSION\\\"

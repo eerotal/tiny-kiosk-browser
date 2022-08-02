@@ -38,7 +38,10 @@
 #define MAIN_H
 
 #include <QWidget>
-#include <QWebEngineView>
+#include <QWebView>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QAuthenticator>
 
 /*
  * @brief Main browser widget class.
@@ -67,7 +70,12 @@ public:
     void showIntroPage(void);
 
 private:
-    QWebEngineView* webView;
+    QWebView* webView;
+    QNetworkAccessManager* accessManager;
+
+public slots:
+    void provideAuthentication(QNetworkReply* reply, QAuthenticator *authenticator);
+    void finished(QNetworkReply* reply);
 };
 
 #endif
