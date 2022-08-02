@@ -1,10 +1,4 @@
-Makefile
-
-moc_*
-.qmake.stash
-
-*.o
+Build/
 tiny-kiosk-browser
-
 \#*
 .\#*
