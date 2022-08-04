@@ -50,9 +50,11 @@ set(SRC_DIR Src/)
 
 set(SOURCES
     ${SRC_DIR}/Core/Src/main.c
+    ${SRC_DIR}/Core/Src/browser.c
 )
 
 set(HEADERS
+    ${SRC_DIR}
     ${GTK3_INCLUDE_DIRS}
     ${WEBKIT2_INCLUDE_DIRS}
 )
@@ -63,6 +65,7 @@ set(LIBRARIES
 )
 
 set(CFLAGS
+    -g -Wall -Wextra -std=c11 -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition
     ${GTK3_CFLAGS}
     ${WEBKIT2_CFLAGS}
 )

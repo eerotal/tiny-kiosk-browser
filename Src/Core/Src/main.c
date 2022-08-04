@@ -28,80 +28,138 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  *
- * @file main.cpp
+ * @file main.c
  *
  * @description Tiny Kiosk Browser entrypoint.
  *
  *******************************************************************************/
 
+#include "Core/Inc/browser.h"
+
 #include <gtk/gtk.h>
 #include <webkit2/webkit2.h>
 
-struct Browser {
-    GtkApplication* app;
-    GtkWidget *mainWindow;
-    WebKitWebView *webView;
-};
+static void startup(GApplication* app, gpointer user_data);
 
-static void authenticate(WebKitWebView *webView, WebKitAuthenticationRequest *request, gpointer user_data) {
-    WebKitCredential* credential;
+static void activate(
+    __attribute__((unused)) GApplication* app,
+    __attribute__((unused)) gpointer user_data
+);
 
-    g_message("Authenticating with provided credentials.");
+static void open(
+    __attribute__((unused)) GApplication* app,
+    gpointer files,
+    gint n_files,
+    __attribute__((unused)) const gchar* hint,
+    gpointer user_data
+);
 
-    credential = webkit_credential_new(
-        "infotv",
-        "vtofni",
-        WEBKIT_CREDENTIAL_PERSISTENCE_FOR_SESSION
-    );
-    webkit_authentication_request_authenticate(request, credential);
 
-    webkit_credential_free(credential);
-}
-
+/*
+ * @brief       Initialize the browser widgets.
+ *
+ * @description This function is connected to the "startup" signal of the
+ *              main GtkApplication.
+ */
 static void startup(GApplication* app, gpointer user_data) {
-    struct Browser* browser = user_data;
-
-    // Create the main application window.
-    browser->mainWindow = gtk_application_window_new(GTK_APPLICATION(app));
-    gtk_window_set_title(GTK_WINDOW(browser->mainWindow), "Tiny Kiosk Browser");
-    gtk_window_set_default_size(GTK_WINDOW(browser->mainWindow), 200, 200);
-
-    // Create the web view component.
-    browser->webView = WEBKIT_WEB_VIEW(webkit_web_view_new());
-    g_signal_connect(browser->webView, "authenticate", G_CALLBACK(authenticate), NULL);
-    gtk_container_add(GTK_CONTAINER(browser->mainWindow), GTK_WIDGET(browser->webView));
-    gtk_widget_show_all(browser->mainWindow);
+    Browser* browser = user_data;
+    Browser_init(app, browser);
 }
 
-static void activate(GApplication* app, gpointer user_data) {
-    
+/*
+ * @brief       Activate the browser.
+ *
+ * @description This function is connected to the "activate" signal of the
+ *              main GtkApplication.
+ */
+static void activate(
+    __attribute__((unused)) GApplication* app,
+    __attribute__((unused)) gpointer user_data
+) {
+
 }
 
-static void open(GApplication* app, gpointer files, gint n_files, const gchar* hint, gpointer user_data) {
-    struct Browser* browser = user_data;
+/*
+ * @brief       Open a URL in the browser.
+ *
+ * @description This function is connected to the "open" signal of the
+ *              main GtkApplication.
+ */
+static void open(
+    __attribute__((unused)) GApplication* app,
+    gpointer files,
+    gint n_files,
+    __attribute__((unused)) const gchar* hint,
+    gpointer user_data
+) {
     GFile** gfiles = files;
     char* url = g_file_get_uri(gfiles[0]);
+    Browser* browser = user_data;
 
     if (n_files > 1) {
         g_warning("More than one URL specified. Will load the first one.");
     }
 
-    // Load the specified URL in WebKit
+    // Load the specified URL.
     g_message("Loading: %s\n", url);
-    webkit_web_view_load_uri(browser->webView, url);
+    Browser_load(browser, url);
 }
 
+/*
+ * @brief Main entrypoint function.
+ */
 int main(int argc, char** argv) {
-    int status;
-    struct Browser browser;
+    int status = 0;
+    GtkApplication* app;
+    Browser browser;
 
-    browser.app = gtk_application_new("cc.talus.tiny-kiosk-browser", G_APPLICATION_HANDLES_OPEN);
-    g_signal_connect(browser.app, "startup", G_CALLBACK(startup), &browser);
-    g_signal_connect(browser.app, "activate", G_CALLBACK(activate), &browser);
-    g_signal_connect(browser.app, "open", G_CALLBACK(open), &browser);
+    memset(&browser, 0, sizeof(browser));
 
-    status = g_application_run(G_APPLICATION(browser.app), argc, argv);
-    g_object_unref(browser.app);
+    // Create the GTK application.
+    app = gtk_application_new(
+        "cc.talus.tiny-kiosk-browser",
+        G_APPLICATION_HANDLES_OPEN
+    );
+    g_signal_connect(app, "startup", G_CALLBACK(startup), &browser);
+    g_signal_connect(app, "activate", G_CALLBACK(activate), &browser);
+    g_signal_connect(app, "open", G_CALLBACK(open), &browser);
+
+    // Setup CLI argument parsing.
+    const GOptionEntry cli_params[] = {
+        {
+            .long_name = "host",
+            .short_name = 'h',
+            .flags = G_OPTION_FLAG_IN_MAIN,
+            .arg = G_OPTION_ARG_STRING,
+            .arg_data = &(browser.basicAuth.host),
+            .description = "HTTP Basic Authentication hostname.",
+            .arg_description = "HOST"
+        },
+        {
+            .long_name = "username",
+            .short_name = 'u',
+            .flags = G_OPTION_FLAG_IN_MAIN,
+            .arg = G_OPTION_ARG_STRING,
+            .arg_data = &(browser.basicAuth.username),
+            .description = "HTTP Basic Authentication username.",
+            .arg_description = "USER"
+        },
+        {
+            .long_name = "password",
+            .short_name = 'p',
+            .flags = G_OPTION_FLAG_IN_MAIN,
+            .arg = G_OPTION_ARG_STRING,
+            .arg_data = &(browser.basicAuth.password),
+            .description = "HTTP Basic Authentication password.",
+            .arg_description = "PASS"
+        },
+        {NULL}
+    };
+    g_application_add_main_option_entries(G_APPLICATION(app), cli_params);
+
+    // Run the GTK application.
+    status = g_application_run(G_APPLICATION(app), argc, argv);
+    g_object_unref(app);
 
     return status;
 }
