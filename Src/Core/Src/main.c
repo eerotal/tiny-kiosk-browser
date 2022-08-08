@@ -54,6 +54,8 @@ static void open(
     gpointer user_data
 );
 
+static void setupCliParsing(GtkApplication* app, Browser* browser);
+
 
 /*
  * @brief       Initialize the browser widgets.
@@ -106,6 +108,73 @@ static void open(
 }
 
 /*
+ * @brief         Setup CLI option parsing.
+ *
+ * @param app     The GtkApplication to setup option parsing for.
+ * @param browser The Browser instance associated with the application.
+ */
+static void setupCliParsing(GtkApplication* app, Browser* browser) {
+    const GOptionEntry cli_params[] = {
+        {
+            .long_name = "host",
+            .short_name = 'h',
+            .flags = G_OPTION_FLAG_NONE,
+            .arg = G_OPTION_ARG_STRING,
+            .arg_data = &(browser->basicAuth.host),
+            .description = "HTTP Basic Authentication hostname",
+            .arg_description = "HOST"
+        },
+        {
+            .long_name = "username",
+            .short_name = 'u',
+            .flags = G_OPTION_FLAG_NONE,
+            .arg = G_OPTION_ARG_STRING,
+            .arg_data = &(browser->basicAuth.username),
+            .description = "HTTP Basic Authentication username",
+            .arg_description = "USER"
+        },
+        {
+            .long_name = "password",
+            .short_name = 'p',
+            .flags = G_OPTION_FLAG_NONE,
+            .arg = G_OPTION_ARG_STRING,
+            .arg_data = &(browser->basicAuth.password),
+            .description = "HTTP Basic Authentication password",
+            .arg_description = "PASS"
+        },
+        {
+            .long_name = "width",
+            .short_name = 'W',
+            .flags = G_OPTION_FLAG_NONE,
+            .arg = G_OPTION_ARG_INT,
+            .arg_data = &(browser->geometry.width),
+            .description = "Set the width of the browser window.",
+            .arg_description = "W"
+        },
+        {
+            .long_name = "height",
+            .short_name = 'H',
+            .flags = G_OPTION_FLAG_NONE,
+            .arg = G_OPTION_ARG_INT,
+            .arg_data = &(browser->geometry.height),
+            .description = "Set the height of the browser window.",
+            .arg_description = "H"
+        },
+        {
+            .long_name = "fullscreen",
+            .short_name = 'f',
+            .flags = G_OPTION_FLAG_NONE,
+            .arg = G_OPTION_ARG_NONE,
+            .arg_data = &(browser->geometry.fullscreen),
+            .description = "Make the browser window fullscreen.",
+            .arg_description = NULL
+        },
+        {NULL}
+    };
+    g_application_add_main_option_entries(G_APPLICATION(app), cli_params);
+}
+
+/*
  * @brief Main entrypoint function.
  */
 int main(int argc, char** argv) {
@@ -124,38 +193,8 @@ int main(int argc, char** argv) {
     g_signal_connect(app, "activate", G_CALLBACK(activate), &browser);
     g_signal_connect(app, "open", G_CALLBACK(open), &browser);
 
-    // Setup CLI argument parsing.
-    const GOptionEntry cli_params[] = {
-        {
-            .long_name = "host",
-            .short_name = 'h',
-            .flags = G_OPTION_FLAG_IN_MAIN,
-            .arg = G_OPTION_ARG_STRING,
-            .arg_data = &(browser.basicAuth.host),
-            .description = "HTTP Basic Authentication hostname.",
-            .arg_description = "HOST"
-        },
-        {
-            .long_name = "username",
-            .short_name = 'u',
-            .flags = G_OPTION_FLAG_IN_MAIN,
-            .arg = G_OPTION_ARG_STRING,
-            .arg_data = &(browser.basicAuth.username),
-            .description = "HTTP Basic Authentication username.",
-            .arg_description = "USER"
-        },
-        {
-            .long_name = "password",
-            .short_name = 'p',
-            .flags = G_OPTION_FLAG_IN_MAIN,
-            .arg = G_OPTION_ARG_STRING,
-            .arg_data = &(browser.basicAuth.password),
-            .description = "HTTP Basic Authentication password.",
-            .arg_description = "PASS"
-        },
-        {NULL}
-    };
-    g_application_add_main_option_entries(G_APPLICATION(app), cli_params);
+    // Configure CLI option parsing.
+    setupCliParsing(app, &browser);
 
     // Run the GTK application.
     status = g_application_run(G_APPLICATION(app), argc, argv);

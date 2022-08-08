@@ -40,6 +40,9 @@
 #include <gtk/gtk.h>
 #include <webkit2/webkit2.h>
 
+#define BROWSER_DEFAULT_WIDTH 500
+#define BROWSER_DEFAULT_HEIGHT 500
+
 typedef struct {
     gchar* host;
     gchar* username;
@@ -47,9 +50,16 @@ typedef struct {
 } HttpBasicAuthCredentials;
 
 typedef struct {
+    gint width;
+    gint height;
+    gboolean fullscreen;
+} BrowserGeometry;
+
+typedef struct {
     GtkWidget *mainWindow;
     WebKitWebView *webView;
 
+    BrowserGeometry geometry;
     HttpBasicAuthCredentials basicAuth;
 } Browser;
 

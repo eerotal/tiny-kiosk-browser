@@ -91,7 +91,15 @@ void Browser_init(GApplication* app, Browser* browser) {
     // Create the main browser window.
     browser->mainWindow = gtk_application_window_new(GTK_APPLICATION(app));
     gtk_window_set_title(GTK_WINDOW(browser->mainWindow), "Tiny Kiosk Browser");
-    gtk_window_set_default_size(GTK_WINDOW(browser->mainWindow), 200, 200);
+
+    // Set browser window geometry based on user preferences.
+    gint w = browser->geometry.width ? browser->geometry.width : BROWSER_DEFAULT_WIDTH;
+    gint h = browser->geometry.height ? browser->geometry.height : BROWSER_DEFAULT_HEIGHT;
+    gtk_window_set_default_size(GTK_WINDOW(browser->mainWindow), w, h);
+
+    if (browser->geometry.fullscreen) {
+        gtk_window_fullscreen(GTK_WINDOW(browser->mainWindow));
+    }
 
     // Create the web view component.
     browser->webView = WEBKIT_WEB_VIEW(webkit_web_view_new());
