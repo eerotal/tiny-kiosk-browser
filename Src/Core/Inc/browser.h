@@ -30,7 +30,7 @@
  *
  * @file main.c
  *
- * @description Tiny Kiosk Browser entrypoint.
+ * @description Browser related declarations.
  *
  *******************************************************************************/
 
@@ -43,24 +43,33 @@
 #define BROWSER_DEFAULT_WIDTH 500
 #define BROWSER_DEFAULT_HEIGHT 500
 
+/*
+ * @brief HTTP Basic Authentication data struct,
+ */
 typedef struct {
-    gchar* host;
-    gchar* username;
-    gchar* password;
+    gchar* host;       // @brief HTTP Basic authentication hostname.
+    gchar* username;   // @brief HTTP Basic authentication username.
+    gchar* password;   // @brief HTTP Basic authentication password.
 } HttpBasicAuthCredentials;
 
+/*
+ * @brief Browser window geometry struct.
+ */
 typedef struct {
-    gint width;
-    gint height;
-    gboolean fullscreen;
+  gint width;          // @brief Window width in px.
+  gint height;         // @brief Window height in px.
+  gboolean fullscreen; // @brief Flag indicating window fullscreen mode.
 } BrowserGeometry;
 
+/*
+ * @brief Main struct for Browser data and configuration.
+ */
 typedef struct {
-    GtkWidget *mainWindow;
-    WebKitWebView *webView;
+    GtkWidget *mainWindow;              // @brief Main browser window pointer.
+    WebKitWebView *webView;             // @brief Main browser web view pointer.
 
-    BrowserGeometry geometry;
-    HttpBasicAuthCredentials basicAuth;
+    BrowserGeometry geometry;           // @brief Pointer to browser geometry.
+    HttpBasicAuthCredentials basicAuth; // @brief Pointer to optional basic auth data.
 } Browser;
 
 /*

@@ -30,7 +30,7 @@
  *
  * @file main.c
  *
- * @description Tiny Kiosk Browser entrypoint.
+ * @description Browser related functions.
  *
  *******************************************************************************/
 
