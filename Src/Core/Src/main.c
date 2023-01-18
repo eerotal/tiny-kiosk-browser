@@ -161,6 +161,15 @@ static void setupCliParsing(GtkApplication* app, Browser* browser) {
             .arg_description = "H"
         },
         {
+            .long_name = "zoom",
+            .short_name = 'Z',
+            .flags = G_OPTION_FLAG_NONE,
+            .arg = G_OPTION_ARG_INT,
+            .arg_data = &(browser->geometry.zoom),
+            .description = "Set the zoom level of the browser window as a percentage.",
+            .arg_description = "Z"
+        },
+        {
             .long_name = "fullscreen",
             .short_name = 'f',
             .flags = G_OPTION_FLAG_NONE,

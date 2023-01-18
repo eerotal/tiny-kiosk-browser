@@ -58,6 +58,7 @@ typedef struct {
 typedef struct {
   gint width;          // @brief Window width in px.
   gint height;         // @brief Window height in px.
+  gint zoom;           // @brief Window zoom level as a percentage.
   gboolean fullscreen; // @brief Flag indicating window fullscreen mode.
 } BrowserGeometry;
 

@@ -104,6 +104,13 @@ void Browser_init(GApplication* app, Browser* browser) {
     // Create the web view component.
     browser->webView = WEBKIT_WEB_VIEW(webkit_web_view_new());
     g_signal_connect(browser->webView, "authenticate", G_CALLBACK(Browser_authenticate), browser);
+
+    // Set the zoom level.
+    webkit_web_view_set_zoom_level(
+        browser->webView,
+        (gdouble) browser->geometry.zoom/100.0
+    );
+
     gtk_container_add(GTK_CONTAINER(browser->mainWindow), GTK_WIDGET(browser->webView));
 
     gtk_widget_show_all(browser->mainWindow);
